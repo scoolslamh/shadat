@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة الشهادات - تعليم عسير</title>
+    <title>بوابة الشهادات - تعليم عسير </title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -60,10 +60,10 @@
 
     <div class="card">
         <div class="header">
-            <img src="moe-logo.png" alt="شعار وزارة التعليم">
+            <img src="https://upload.wikimedia.org/wikipedia/ar/thumb/0/05/Ministry_of_Education_Saudi_Arabia.svg/1024px-Ministry_of_Education_Saudi_Arabia.svg.png" alt="شعار وزارة التعليم">
             <!-- العناوين الجديدة -->
             <h1>اصدار شهادات لقاء سمو أمير المنطقة بحراس وحارسات مدارس تعليم عسير</h1>
-            <div class="subtitle">الشهادات للمدير/ة - الحارس/ة - حارس شركة سمايا</div>
+            <div class="subtitle">الشهادات: للمدير/ة-الحارس/ة - حارس شركة سمايا</div>
         </div>
 
         <div class="content">
@@ -140,14 +140,33 @@
             }
         }
 
-        // دالة جديدة لتسجيل التحميل في الإكسل وفتح الشهادة
+        // دالة جديدة لتحويل رابط درايف العادي إلى رابط تحميل مباشر
+        function getDirectDownloadLink(driveLink) {
+            // استخراج ID الملف من الرابط
+            const regex = /\/d\/(.*?)\//;
+            const match = driveLink.match(regex);
+            if (match && match[1]) {
+                return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+            }
+            return driveLink; // في حال فشل الاستخراج، يعود للرابط الأصلي
+        }
+
+        // دالة تسجيل التحميل في الإكسل وتحميل الشهادة مباشرة
         function logAndDownload(e) {
             e.preventDefault();
             
-            // 1. فتح الشهادة للمستخدم فوراً في نافذة جديدة
-            window.open(currentCertLink, '_blank');
+            // 1. تحويل الرابط
+            const directLink = getDirectDownloadLink(currentCertLink);
+            
+            // 2. إنشاء "رابط مخفي" والضغط عليه برمجياً لبدء التحميل فوراً على الجوال
+            const a = document.createElement('a');
+            a.href = directLink;
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
 
-            // 2. إرسال طلب في الخلفية لجوجل لتسجيل أن هذا الرقم قام بالتحميل (action=log)
+            // 3. إرسال طلب في الخلفية لجوجل لتسجيل عملية التحميل
             fetch(`${APPS_SCRIPT_URL}?action=log&phone=${encodeURIComponent(currentUserPhone)}`)
                 .catch(err => console.error('Error logging download:', err));
         }
